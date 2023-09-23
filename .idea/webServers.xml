@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="058dc7b8-4db8-494f-855b-75617b7da242" name="EGCloud">
+        <fileTransfer rootFolder="/home/ec2-user" accessType="SFTP" host="EGCloud" port="22" sshConfigId="e203b3fd-a7d8-4827-acad-92d6fe361f7a" sshConfig="ec2-user@EGCloud:22 agent" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
