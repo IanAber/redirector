@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -11,8 +12,13 @@ import (
 	"strings"
 )
 
-const certFile = "/etc/cert/localhost.crt"
-const keyFile = "/etc/cert/localhost.key"
+//const certFile = "/etc/cert/localhost.crt"
+//const keyFile = "/etc/cert/localhost.key"
+var (
+	certFile string
+	keyFile  = "/etc/letsencrypt/live/cloud.elektrikgreen.com/privkey.pem"
+)
+
 const customerMapFile = "/etc/customerMap.json"
 
 const infoHTML = `<html>
@@ -139,7 +145,7 @@ func AddNewOrUpdateCustomer(w http.ResponseWriter, r *http.Request) {
 						}
 						// Make sure it isn't in use already
 						for key, val := range customerMap {
-							if val == customer[1] {
+							if val == customer[1] && key != customer[0] {
 								if _, err := fmt.Fprintf(w, portInUseHTML, key); err != nil {
 									log.Println(err)
 								}
@@ -151,7 +157,7 @@ func AddNewOrUpdateCustomer(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
-			// Convert the map to JSO
+			// Convert the map to JSON
 			if fileContent, err := json.MarshalIndent(customerMap, "", "    "); err != nil {
 				log.Println(err)
 				return
@@ -182,6 +188,12 @@ func getLogo(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "/images/logo.png")
 }
 
+func init() {
+	flag.StringVar(&keyFile, "keyFile", "/etc/letsencrypt/live/cloud.elektrikgreen.com/privkey.pem", "Path to the key file")
+	flag.StringVar(&certFile, "certFile", "/etc/letsencrypt/live/cloud.elektrikgreen.com/fullchain.pem", "Name of the certificate full chain file")
+	flag.Parse()
+}
+
 func main() {
 	customerMap = make(map[string]string, 0)
 
@@ -204,7 +216,6 @@ func main() {
 		hostName := strings.ToLower(strings.Split(req.Host, ".")[0])
 		switch hostName {
 		case "update":
-			log.Println("update")
 			AddNewOrUpdateCustomer(w, req)
 			break
 		case "cloud":
@@ -214,15 +225,12 @@ func main() {
 			}
 			break
 		case "list":
-			log.Println("list")
 			printCustomerMap(w)
 			break
 		case "help":
-			log.Println("Help")
 			printHelp(w)
 			break
 		case "logo":
-			log.Println("logo")
 			getLogo(w, req)
 		default:
 			host := customerMap[hostName]
